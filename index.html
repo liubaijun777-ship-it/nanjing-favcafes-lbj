@@ -346,40 +346,34 @@
 
     /* ── Cafe 标记（通用容器） ── */
     .cafe-marker-el {
-      width: 40px; height: 40px;
+      width: 32px; height: 32px;
+      cursor: pointer;
+      transition: transform 0.12s;
+    }
+    .cafe-marker-el:hover { transform: scale(1.2); }
+    .cafe-marker-el.active-dot {
+      transform: scale(1.3);
+      filter: drop-shadow(0 0 6px rgba(245,255,0,0.7)) drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    }
+
+    /* 无照片：荧光黄五角星 */
+    .cafe-marker-el.no-photo {
+      background: #F5FF00;
+      clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+      filter: drop-shadow(0 2px 5px rgba(0,0,0,0.28));
+    }
+
+    /* 有照片：圆形裁切图片 */
+    .cafe-marker-el.has-photo {
       border-radius: 50%;
       border: 2.5px solid rgba(255,255,255,0.9);
       box-shadow: 0 2px 8px rgba(80,50,30,0.28);
-      cursor: pointer;
-      transition: transform 0.12s;
       overflow: hidden;
-      position: relative;
     }
-    .cafe-marker-el:hover { transform: scale(1.15); }
-    .cafe-marker-el.active-dot {
-      transform: scale(1.2);
-      box-shadow: 0 0 0 4px rgba(200,164,145,0.4), 0 3px 8px rgba(80,50,30,0.3);
-    }
-
-    /* 有照片：图片填满圆 */
-    .cafe-marker-el img {
+    .cafe-marker-el.has-photo img {
       width: 100%; height: 100%;
       object-fit: cover;
       display: block;
-    }
-
-    /* 无照片：纯色圆点 + 首字母 */
-    .cafe-marker-el.no-photo {
-      display: flex; align-items: center; justify-content: center;
-    }
-    .cafe-marker-el.no-photo .marker-initial {
-      font-size: 13px;
-      font-weight: 700;
-      color: rgba(255,255,255,0.88);
-      letter-spacing: 0;
-      line-height: 1;
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-      pointer-events: none;
     }
   </style>
 </head>
@@ -504,17 +498,12 @@ const rowEls  = [];
 cafes.forEach((c, i) => {
   const color = dcMap[c.district] || dcMap["？"];
 
-  const initial = c.name.replace(/[a-z]/gi, '').charAt(0) || c.name.charAt(0).toUpperCase();
-  const innerHtml = c.photo
-    ? `<img src="${c.photo}" alt="${c.name}">`
-    : `<span class="marker-initial">${initial}</span>`;
-
   const icon = L.divIcon({
     className: '',
-    html: `<div class="cafe-marker-el ${c.photo ? '' : 'no-photo'}" id="dot-${i}" style="${c.photo ? '' : `background:${color};`}">${innerHtml}</div>`,
-    iconSize: [40, 40],
-    iconAnchor: [20, 20],
-    popupAnchor: [0, -22],
+    html: `<div class="cafe-marker-el ${c.photo ? 'has-photo' : 'no-photo'}" id="dot-${i}">${c.photo ? `<img src="${c.photo}" alt="${c.name}">` : ''}</div>`,
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
+    popupAnchor: [0, -18],
   });
 
   const marker = L.marker([c.lat, c.lng], { icon, draggable: true })
